@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.14), transparent 32%),
+    linear-gradient(180deg, #080808 0%, #0a0a0a 45%, #121212 100%);
+  color: #f0f0f0;
+  min-height: 100vh;
+}
+
+* {
+  border-color: #2b2b2b;
+}
+
+.panel {
+  @apply border border-border bg-zinc-950/80 shadow-panel;
+}
+
+.terminal-text {
+  @apply font-mono text-[13px] leading-6 text-zinc-200;
+}
+
+.headline-glow {
+  text-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
+}
+

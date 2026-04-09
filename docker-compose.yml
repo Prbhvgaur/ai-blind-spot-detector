@@ -1,0 +1,79 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: blindspot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3101:3101"
+    environment:
+      NODE_ENV: development
+      PORT: 3101
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/blindspot
+      REDIS_URL: redis://redis:6379
+      DEMO_MODE: "false"
+      ANALYSIS_EXECUTION_MODE: queue
+      ENABLE_ANALYSIS_WORKER: "true"
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:3101
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+    working_dir: /workspace
+    command: npm run dev --workspace @blindspot/api
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3101
+      NEXTAUTH_URL: http://localhost:3000
+    env_file: .env
+    depends_on:
+      - api
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+    working_dir: /workspace
+    command: npm run dev --workspace @blindspot/web
+
+volumes:
+  postgres_data:
+  redis_data:

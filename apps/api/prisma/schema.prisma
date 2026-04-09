@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  passwordHash           String?
+  googleId               String?        @unique
+  name                   String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  plan                   Plan           @default(FREE)
+  analysisCount          Int            @default(0)
+  stripeCustomerId       String?        @unique
+  stripeSubscriptionId   String?        @unique
+  subscriptionStatus     String?
+  subscriptionEndsAt     DateTime?
+  refreshTokens          RefreshToken[]
+  analyses               Analysis[]
+
+  @@index([plan])
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Analysis {
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+  input            String         @db.Text
+  status           AnalysisStatus @default(PENDING)
+  counterarguments Json?
+  assumptions      Json?
+  expertPersonas   Json?
+  blindSpotReport  Json?
+  confidenceAudit  Json?
+  summary          String?        @db.Text
+  inputTokens      Int?
+  outputTokens     Int?
+  durationMs       Int?
+  isPublic         Boolean        @default(false)
+  shareToken       String?        @unique
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([shareToken])
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETE
+  FAILED
+}

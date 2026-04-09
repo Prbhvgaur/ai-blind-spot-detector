@@ -1,0 +1,16 @@
+{
+  "name": "@blindspot/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "echo \"No shared tests\"",
+    "format": "echo \"No shared formatting step\""
+  },
+  "dependencies": {
+    "zod": "3.25.76"
+  }
+}

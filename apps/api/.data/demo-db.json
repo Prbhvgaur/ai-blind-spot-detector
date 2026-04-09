@@ -1,0 +1,419 @@
+{
+  "users": [
+    {
+      "id": "d9f6d3b5-3db9-4cf6-945a-31b9fc320533",
+      "email": "demo.user@example.com",
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=1$5+P3OVRXCL3N7M1m9GSNow$v7cxDXApSTWKv3C6k/KGkzXr8DjzFnS2/Wc2NYHYjaY",
+      "name": "Demo User",
+      "createdAt": "2026-04-09T14:25:20.978Z",
+      "updatedAt": "2026-04-09T14:25:20.978Z",
+      "plan": "FREE",
+      "analysisCount": 0,
+      "stripeCustomerId": null,
+      "stripeSubscriptionId": null,
+      "subscriptionStatus": null,
+      "subscriptionEndsAt": null
+    },
+    {
+      "id": "ed7a3fb7-8fc3-4999-830b-aa0957b4ebdc",
+      "email": "flow.user@example.com",
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=1$QFt0Z8BLWveG1SqXHXtOeg$sttjYDEJC8L3HEi2Y/lZXSkqdCH6A4IMZ6uBrQPpny8",
+      "name": "Flow User",
+      "createdAt": "2026-04-09T14:25:56.265Z",
+      "updatedAt": "2026-04-09T14:25:56.265Z",
+      "plan": "FREE",
+      "analysisCount": 0,
+      "stripeCustomerId": null,
+      "stripeSubscriptionId": null,
+      "subscriptionStatus": null,
+      "subscriptionEndsAt": null
+    },
+    {
+      "id": "f0fb1930-c13b-499d-bec9-089f956318c8",
+      "email": "flow.user.two@example.com",
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=1$KGzebiU928muy4KHljH/yg$sZBFTYqznTnNW1ncWKDw0Tf/CTONr7hqZl19jzIwyCk",
+      "name": "Flow User Two",
+      "createdAt": "2026-04-09T14:28:57.123Z",
+      "updatedAt": "2026-04-09T14:28:58.409Z",
+      "plan": "FREE",
+      "analysisCount": 1,
+      "stripeCustomerId": null,
+      "stripeSubscriptionId": null,
+      "subscriptionStatus": null,
+      "subscriptionEndsAt": null
+    },
+    {
+      "id": "7c64de53-386e-42f2-95d4-a9daaf2a5120",
+      "email": "share.user@example.com",
+      "passwordHash": "$argon2id$v=19$m=65536,t=3,p=1$jmoOtN9HXgaSJxm96n6ebg$doIVQU2+zJu/tZYR318p0cg5+TVK4YLVpcNgWetp++0",
+      "name": "Share User",
+      "createdAt": "2026-04-09T14:29:47.164Z",
+      "updatedAt": "2026-04-09T14:29:48.490Z",
+      "plan": "FREE",
+      "analysisCount": 1,
+      "stripeCustomerId": null,
+      "stripeSubscriptionId": null,
+      "subscriptionStatus": null,
+      "subscriptionEndsAt": null
+    }
+  ],
+  "refreshTokens": [
+    {
+      "id": "b2e3ba90-229e-4cd9-a2cd-a84c6d14088d",
+      "token": "b0616ca270757ba6fed49fab2fa10f4a2bf007b963d01e53de834f00f4c9b6ab",
+      "userId": "d9f6d3b5-3db9-4cf6-945a-31b9fc320533",
+      "expiresAt": "2026-04-16T14:25:21.008Z",
+      "createdAt": "2026-04-09T14:25:21.010Z"
+    },
+    {
+      "id": "9298bea2-af30-4580-a1df-1b755d834e74",
+      "token": "a519f1e6c1d7d2623dc46fe4cd0de35f59ee119366ae2a64235431e5021c1a87",
+      "userId": "ed7a3fb7-8fc3-4999-830b-aa0957b4ebdc",
+      "expiresAt": "2026-04-16T14:25:56.269Z",
+      "createdAt": "2026-04-09T14:25:56.269Z"
+    },
+    {
+      "id": "5b77b1c4-36b3-497c-b9d4-df37f4bf241d",
+      "token": "5846e5b170da57eaadfb5994f436a649eca00a6259cd0b9f3ca1c14b0a66e65a",
+      "userId": "f0fb1930-c13b-499d-bec9-089f956318c8",
+      "expiresAt": "2026-04-16T14:28:57.135Z",
+      "createdAt": "2026-04-09T14:28:57.135Z"
+    },
+    {
+      "id": "b8fa192a-45eb-4990-a467-bcfbf694c465",
+      "token": "716f933c00ed918ea9c35e62f1b36a7d5bf017b8493cecb7ea854389d26ee73c",
+      "userId": "7c64de53-386e-42f2-95d4-a9daaf2a5120",
+      "expiresAt": "2026-04-16T14:29:47.173Z",
+      "createdAt": "2026-04-09T14:29:47.173Z"
+    },
+    {
+      "id": "ddac809c-77d5-41d6-9d35-4c33add7f2fb",
+      "token": "9c3739d674954de4e932a97668b83108d45ddac843f15ad5450a447d3be9cd21",
+      "userId": "d9f6d3b5-3db9-4cf6-945a-31b9fc320533",
+      "expiresAt": "2026-04-16T14:31:42.724Z",
+      "createdAt": "2026-04-09T14:31:42.729Z"
+    }
+  ],
+  "analyses": [
+    {
+      "id": "d30d6c78-7d2c-469c-8c46-a8bc6686b751",
+      "userId": "ed7a3fb7-8fc3-4999-830b-aa0957b4ebdc",
+      "createdAt": "2026-04-09T14:25:56.477Z",
+      "input": "We should launch a premium AI workflow audit product for startup founders this quarter, because founders are overwhelmed by agreeable AI tools and need a sharper way to test strategy before spending team time and money on the wrong roadmap.",
+      "status": "FAILED",
+      "counterarguments": null,
+      "assumptions": null,
+      "expertPersonas": null,
+      "blindSpotReport": null,
+      "confidenceAudit": null,
+      "summary": null,
+      "inputTokens": null,
+      "outputTokens": null,
+      "durationMs": 931,
+      "isPublic": false,
+      "shareToken": null
+    },
+    {
+      "id": "e06fd5d4-78b1-4812-94ae-5fb224416f8d",
+      "userId": "f0fb1930-c13b-499d-bec9-089f956318c8",
+      "createdAt": "2026-04-09T14:28:57.330Z",
+      "input": "We should launch a premium AI workflow audit product for startup founders this quarter, because founders are overwhelmed by agreeable AI tools and need a sharper way to test strategy before spending team time and money on the wrong roadmap.",
+      "status": "COMPLETE",
+      "counterarguments": [
+        {
+          "title": "Demand is asserted more than demonstrated",
+          "argument": "The proposal sounds confident about the problem, but it does not yet show repeated pain, urgency, or budget ownership strongly enough to justify the confidence level.",
+          "refutationEvidence": [
+            "Customer calls with clear buying intent",
+            "Evidence of repeated usage",
+            "Replacement of an existing workflow or spend"
+          ]
+        },
+        {
+          "title": "Distribution may be the actual bottleneck",
+          "argument": "The current reasoning puts more emphasis on product quality than on how users will actually discover, trust, and adopt the product at scale.",
+          "refutationEvidence": [
+            "Repeatable acquisition channel",
+            "CAC payback clarity",
+            "Non-founder-led pipeline"
+          ]
+        },
+        {
+          "title": "Execution dependencies are compressed",
+          "argument": "Product, trust, monetization, and retention are treated as if they will progress together, but each one can invalidate the others if it slips.",
+          "refutationEvidence": [
+            "Milestones with owners",
+            "Dependencies mapped explicitly",
+            "Operating buffer for delays"
+          ]
+        }
+      ],
+      "assumptions": [
+        {
+          "assumption": "Users will trust the system quickly",
+          "whyItMightBeWrong": "High-stakes users usually need proof, repeatability, and explainability before relying on a contrarian tool.",
+          "severity": "High",
+          "validationEvidence": [
+            "Second-session usage",
+            "Trust rating after first report"
+          ]
+        },
+        {
+          "assumption": "The use case is frequent enough for recurring revenue",
+          "whyItMightBeWrong": "Decision-support tools can be valuable but episodic, which makes subscription fit weaker than expected.",
+          "severity": "Critical",
+          "validationEvidence": [
+            "Weekly active usage",
+            "Cohort frequency data"
+          ]
+        },
+        {
+          "assumption": "The positioning is clearly differentiated",
+          "whyItMightBeWrong": "If the output feels generic, buyers will compare it to broader AI tools rather than a must-have workflow.",
+          "severity": "High",
+          "validationEvidence": [
+            "Preference tests",
+            "Win-loss feedback"
+          ]
+        },
+        {
+          "assumption": "Users will share sensitive material",
+          "whyItMightBeWrong": "Security and confidentiality concerns can block adoption even when the product value is clear.",
+          "severity": "Critical",
+          "validationEvidence": [
+            "Security review outcomes",
+            "Submission rate for sensitive use cases"
+          ]
+        },
+        {
+          "assumption": "First-run delight will translate into retention",
+          "whyItMightBeWrong": "Novelty can create a strong first impression without producing a recurring habit.",
+          "severity": "Medium",
+          "validationEvidence": [
+            "30-day retention",
+            "Repeat activation rates"
+          ]
+        }
+      ],
+      "expertPersonas": [
+        {
+          "name": "Avery Chen",
+          "title": "Enterprise Product Leader",
+          "background": "Builds trust-sensitive workflow software for regulated teams.",
+          "coreObjection": "The core insight is appealing, but the trust layer still needs more operational proof.",
+          "unansweredQuestion": "How will you show that the critique is reliably useful instead of just compelling-sounding?",
+          "seenFailInSimilarSituations": "Has seen promising AI copilots stall when trust and explainability lagged the product story."
+        },
+        {
+          "name": "Samir Gupta",
+          "title": "B2B Growth Advisor",
+          "background": "Helps early software products build repeatable acquisition before scale.",
+          "coreObjection": "The product thesis feels sharper than the go-to-market thesis.",
+          "unansweredQuestion": "Which channel acquires users predictably without depending on founder energy?",
+          "seenFailInSimilarSituations": "Has seen good products plateau because distribution never became systematic."
+        },
+        {
+          "name": "Nora Alvarez",
+          "title": "AI Evaluation Lead",
+          "background": "Designs evaluation systems for production AI products.",
+          "coreObjection": "The system still needs a clearer way to measure whether surfaced blind spots are actually predictive.",
+          "unansweredQuestion": "What metric separates a useful critique from a persuasive false positive?",
+          "seenFailInSimilarSituations": "Has seen critique tools lose trust when tone improved faster than signal quality."
+        }
+      ],
+      "blindSpotReport": [
+        {
+          "title": "Confidence is ahead of validation",
+          "severityScore": 9,
+          "severity": "Critical",
+          "explanation": "The idea is directionally plausible, but the strongest claims still need direct evidence."
+        },
+        {
+          "title": "Distribution is under-modeled",
+          "severityScore": 8,
+          "severity": "Critical",
+          "explanation": "Acquisition assumptions are still too vague relative to the certainty of the plan."
+        },
+        {
+          "title": "Trust friction could slow adoption",
+          "severityScore": 6,
+          "severity": "High",
+          "explanation": "The product depends on users sharing valuable inputs they may hesitate to expose."
+        },
+        {
+          "title": "Success metrics need sharper definition",
+          "severityScore": 4,
+          "severity": "Medium",
+          "explanation": "The system should prove that its critiques improve outcomes rather than only sounding incisive."
+        }
+      ],
+      "confidenceAudit": {
+        "defensiblePercentage": 46,
+        "wishfulThinkingPercentage": 54,
+        "defensibleJustification": "There is a credible underlying problem, but several critical assumptions still need validation.",
+        "wishfulThinkingExamples": [
+          "Assuming retention before measuring repeat behavior",
+          "Assuming trust without an explicit trust layer"
+        ],
+        "verdict": "Proceed with caution"
+      },
+      "summary": "The plan has promise, but it relies on assumptions about demand, trust, and execution that still need proof. Demo mode generated this report from your submitted text: \"We should launch a premium AI workflow audit product for startup founders this quarter, because founders are overwhelmed by agreeable AI too...\"",
+      "inputTokens": 60,
+      "outputTokens": 1200,
+      "durationMs": 915,
+      "isPublic": false,
+      "shareToken": null
+    },
+    {
+      "id": "b8e77857-4a3e-4891-a653-b260b281649e",
+      "userId": "7c64de53-386e-42f2-95d4-a9daaf2a5120",
+      "createdAt": "2026-04-09T14:29:47.400Z",
+      "input": "We should reposition our AI product for finance teams, because that market seems more willing to pay and may value adversarial decision support more than general startup customers, but we have not yet validated buying urgency or workflow integration.",
+      "status": "COMPLETE",
+      "counterarguments": [
+        {
+          "title": "Demand is asserted more than demonstrated",
+          "argument": "The proposal sounds confident about the problem, but it does not yet show repeated pain, urgency, or budget ownership strongly enough to justify the confidence level.",
+          "refutationEvidence": [
+            "Customer calls with clear buying intent",
+            "Evidence of repeated usage",
+            "Replacement of an existing workflow or spend"
+          ]
+        },
+        {
+          "title": "Distribution may be the actual bottleneck",
+          "argument": "The current reasoning puts more emphasis on product quality than on how users will actually discover, trust, and adopt the product at scale.",
+          "refutationEvidence": [
+            "Repeatable acquisition channel",
+            "CAC payback clarity",
+            "Non-founder-led pipeline"
+          ]
+        },
+        {
+          "title": "Execution dependencies are compressed",
+          "argument": "Product, trust, monetization, and retention are treated as if they will progress together, but each one can invalidate the others if it slips.",
+          "refutationEvidence": [
+            "Milestones with owners",
+            "Dependencies mapped explicitly",
+            "Operating buffer for delays"
+          ]
+        }
+      ],
+      "assumptions": [
+        {
+          "assumption": "Users will trust the system quickly",
+          "whyItMightBeWrong": "High-stakes users usually need proof, repeatability, and explainability before relying on a contrarian tool.",
+          "severity": "High",
+          "validationEvidence": [
+            "Second-session usage",
+            "Trust rating after first report"
+          ]
+        },
+        {
+          "assumption": "The use case is frequent enough for recurring revenue",
+          "whyItMightBeWrong": "Decision-support tools can be valuable but episodic, which makes subscription fit weaker than expected.",
+          "severity": "Critical",
+          "validationEvidence": [
+            "Weekly active usage",
+            "Cohort frequency data"
+          ]
+        },
+        {
+          "assumption": "The positioning is clearly differentiated",
+          "whyItMightBeWrong": "If the output feels generic, buyers will compare it to broader AI tools rather than a must-have workflow.",
+          "severity": "High",
+          "validationEvidence": [
+            "Preference tests",
+            "Win-loss feedback"
+          ]
+        },
+        {
+          "assumption": "Users will share sensitive material",
+          "whyItMightBeWrong": "Security and confidentiality concerns can block adoption even when the product value is clear.",
+          "severity": "Critical",
+          "validationEvidence": [
+            "Security review outcomes",
+            "Submission rate for sensitive use cases"
+          ]
+        },
+        {
+          "assumption": "First-run delight will translate into retention",
+          "whyItMightBeWrong": "Novelty can create a strong first impression without producing a recurring habit.",
+          "severity": "Medium",
+          "validationEvidence": [
+            "30-day retention",
+            "Repeat activation rates"
+          ]
+        }
+      ],
+      "expertPersonas": [
+        {
+          "name": "Avery Chen",
+          "title": "Enterprise Product Leader",
+          "background": "Builds trust-sensitive workflow software for regulated teams.",
+          "coreObjection": "The core insight is appealing, but the trust layer still needs more operational proof.",
+          "unansweredQuestion": "How will you show that the critique is reliably useful instead of just compelling-sounding?",
+          "seenFailInSimilarSituations": "Has seen promising AI copilots stall when trust and explainability lagged the product story."
+        },
+        {
+          "name": "Samir Gupta",
+          "title": "B2B Growth Advisor",
+          "background": "Helps early software products build repeatable acquisition before scale.",
+          "coreObjection": "The product thesis feels sharper than the go-to-market thesis.",
+          "unansweredQuestion": "Which channel acquires users predictably without depending on founder energy?",
+          "seenFailInSimilarSituations": "Has seen good products plateau because distribution never became systematic."
+        },
+        {
+          "name": "Nora Alvarez",
+          "title": "AI Evaluation Lead",
+          "background": "Designs evaluation systems for production AI products.",
+          "coreObjection": "The system still needs a clearer way to measure whether surfaced blind spots are actually predictive.",
+          "unansweredQuestion": "What metric separates a useful critique from a persuasive false positive?",
+          "seenFailInSimilarSituations": "Has seen critique tools lose trust when tone improved faster than signal quality."
+        }
+      ],
+      "blindSpotReport": [
+        {
+          "title": "Confidence is ahead of validation",
+          "severityScore": 9,
+          "severity": "Critical",
+          "explanation": "The idea is directionally plausible, but the strongest claims still need direct evidence."
+        },
+        {
+          "title": "Distribution is under-modeled",
+          "severityScore": 8,
+          "severity": "Critical",
+          "explanation": "Acquisition assumptions are still too vague relative to the certainty of the plan."
+        },
+        {
+          "title": "Trust friction could slow adoption",
+          "severityScore": 6,
+          "severity": "High",
+          "explanation": "The product depends on users sharing valuable inputs they may hesitate to expose."
+        },
+        {
+          "title": "Success metrics need sharper definition",
+          "severityScore": 4,
+          "severity": "Medium",
+          "explanation": "The system should prove that its critiques improve outcomes rather than only sounding incisive."
+        }
+      ],
+      "confidenceAudit": {
+        "defensiblePercentage": 46,
+        "wishfulThinkingPercentage": 54,
+        "defensibleJustification": "There is a credible underlying problem, but several critical assumptions still need validation.",
+        "wishfulThinkingExamples": [
+          "Assuming retention before measuring repeat behavior",
+          "Assuming trust without an explicit trust layer"
+        ],
+        "verdict": "Proceed with caution"
+      },
+      "summary": "The plan has promise, but it relies on assumptions about demand, trust, and execution that still need proof. Demo mode generated this report from your submitted text: \"We should reposition our AI product for finance teams, because that market seems more willing to pay and may value adversarial decision supp...\"",
+      "inputTokens": 63,
+      "outputTokens": 1200,
+      "durationMs": 918,
+      "isPublic": true,
+      "shareToken": "12d616bf18ec0a9d658765825707c29d"
+    }
+  ]
+}

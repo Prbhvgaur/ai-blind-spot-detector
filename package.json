@@ -1,0 +1,32 @@
+{
+  "name": "blind-spot-detector",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@11.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "turbo run format",
+    "postinstall": "npm run db:generate --workspace @blindspot/api",
+    "db:generate": "npm run db:generate --workspace @blindspot/api",
+    "db:push": "npm run db:push --workspace @blindspot/api"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "remeda": "2.20.1",
+    "turbo": "2.5.4",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "caniuse-lite": "^1.0.30001751"
+  }
+}
