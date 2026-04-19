@@ -58,8 +58,11 @@ export async function stripeWebhooksRoute(fastify: any) {
       }
     },
     async (request: any, reply: any) => {
-      if (env.DEMO_MODE) {
-        reply.code(202).send({ received: true, mode: "demo" });
+      if (env.DEMO_MODE || !env.STRIPE_ENABLED) {
+        reply.code(202).send({
+          received: true,
+          mode: env.DEMO_MODE ? "demo" : "disabled"
+        });
         return;
       }
 

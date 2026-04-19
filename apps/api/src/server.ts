@@ -19,7 +19,7 @@ import prismaPlugin from "./plugins/prisma";
 import rateLimitPlugin from "./plugins/rateLimit";
 import swaggerPlugin from "./plugins/swagger";
 
-export const buildServer = async () => {
+export const buildServer = () => {
   if (env.SENTRY_DSN) {
     Sentry.init({
       dsn: env.SENTRY_DSN
@@ -30,20 +30,20 @@ export const buildServer = async () => {
     logger
   });
 
-  await app.register(sensible);
-  await app.register(fastifyCookie);
-  await app.register(fastifyHelmet);
-  await app.register(fastifyRawBody, {
+  app.register(sensible);
+  app.register(fastifyCookie);
+  app.register(fastifyHelmet);
+  app.register(fastifyRawBody, {
     field: "rawBody",
     global: false,
     encoding: "utf8",
     runFirst: true
   });
-  await app.register(prismaPlugin);
-  await app.register(corsPlugin);
-  await app.register(swaggerPlugin);
-  await app.register(authPlugin);
-  await app.register(rateLimitPlugin);
+  app.register(prismaPlugin);
+  app.register(corsPlugin);
+  app.register(swaggerPlugin);
+  app.register(authPlugin);
+  app.register(rateLimitPlugin);
 
   app.setErrorHandler(errorHandler as any);
 
@@ -60,10 +60,10 @@ export const buildServer = async () => {
     mode: env.DEMO_MODE ? "demo" : "full"
   }));
 
-  await app.register(authRoutes);
-  await app.register(analysisRoutes);
-  await app.register(usersRoutes);
-  await app.register(billingRoutes);
+  app.register(authRoutes);
+  app.register(analysisRoutes);
+  app.register(usersRoutes);
+  app.register(billingRoutes);
 
   if (
     env.ENABLE_ANALYSIS_WORKER &&
@@ -76,11 +76,27 @@ export const buildServer = async () => {
   return app;
 };
 
-const start = async () => {
-  const app = await buildServer();
+let appInstance: ReturnType<typeof buildServer> | null = null;
 
+export const getServer = () => {
+  if (!appInstance) {
+    appInstance = buildServer();
+  }
+
+  return appInstance;
+};
+
+export const app = getServer();
+
+export default async function handler(request: any, response: any) {
+  const server = getServer();
+  await server.ready();
+  server.server.emit("request", request, response);
+}
+
+const start = async () => {
   try {
-    await app.listen({
+    await getServer().listen({
       host: "0.0.0.0",
       port: env.PORT
     });

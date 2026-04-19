@@ -24,6 +24,14 @@ const optionalString = z
   .optional()
   .transform((value) => (value && value.length > 0 ? value : undefined));
 
+const hasRealAnthropicKey = (value?: string) => Boolean(value?.startsWith("sk-ant-"));
+const hasStripeSecretKey = (value?: string) =>
+  Boolean(value?.startsWith("sk_") && !value.toLowerCase().includes("demo"));
+const hasStripeWebhookSecret = (value?: string) =>
+  Boolean(value?.startsWith("whsec_") && !value.toLowerCase().includes("demo"));
+const hasStripePriceId = (value?: string) =>
+  Boolean(value?.startsWith("price_") && !value.toLowerCase().includes("demo"));
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(3101),
@@ -83,5 +91,11 @@ export const env = {
   GOOGLE_CLIENT_SECRET: parsedEnv.data.GOOGLE_CLIENT_SECRET,
   STRIPE_SECRET_KEY: parsedEnv.data.STRIPE_SECRET_KEY ?? "sk_test_demo",
   STRIPE_WEBHOOK_SECRET: parsedEnv.data.STRIPE_WEBHOOK_SECRET ?? "whsec_demo",
-  STRIPE_PRO_PRICE_ID: parsedEnv.data.STRIPE_PRO_PRICE_ID ?? "price_demo"
+  STRIPE_PRO_PRICE_ID: parsedEnv.data.STRIPE_PRO_PRICE_ID ?? "price_demo",
+  ANTHROPIC_ENABLED: hasRealAnthropicKey(parsedEnv.data.ANTHROPIC_API_KEY),
+  GOOGLE_OAUTH_ENABLED: Boolean(parsedEnv.data.GOOGLE_CLIENT_ID && parsedEnv.data.GOOGLE_CLIENT_SECRET),
+  STRIPE_ENABLED:
+    hasStripeSecretKey(parsedEnv.data.STRIPE_SECRET_KEY) &&
+    hasStripeWebhookSecret(parsedEnv.data.STRIPE_WEBHOOK_SECRET) &&
+    hasStripePriceId(parsedEnv.data.STRIPE_PRO_PRICE_ID)
 };

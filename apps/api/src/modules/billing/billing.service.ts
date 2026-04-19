@@ -23,9 +23,9 @@ export const ensureStripeCustomer = async (prisma: any, user: any) => {
 };
 
 export const createCheckoutSession = async (prisma: any, userId: string, origin: string, priceId: string) => {
-  if (env.DEMO_MODE) {
+  if (env.DEMO_MODE || !env.STRIPE_ENABLED) {
     return {
-      url: `${origin}/dashboard/settings?billing=demo-checkout&user=${encodeURIComponent(userId)}`
+      url: `${origin}/dashboard/settings?billing=${env.DEMO_MODE ? "demo-checkout" : "stripe-unavailable"}&user=${encodeURIComponent(userId)}`
     };
   }
 
@@ -57,9 +57,9 @@ export const createCheckoutSession = async (prisma: any, userId: string, origin:
 };
 
 export const createPortalSession = async (prisma: any, userId: string, origin: string) => {
-  if (env.DEMO_MODE) {
+  if (env.DEMO_MODE || !env.STRIPE_ENABLED) {
     return {
-      url: `${origin}/dashboard/settings?billing=demo-portal&user=${encodeURIComponent(userId)}`
+      url: `${origin}/dashboard/settings?billing=${env.DEMO_MODE ? "demo-portal" : "stripe-unavailable"}&user=${encodeURIComponent(userId)}`
     };
   }
 

@@ -1,131 +1,136 @@
-import { Worker, Job } from "bullmq";
+import { Worker } from "bullmq";
 import { AnalysisResultSchema } from "@blindspot/shared";
-import pino from "pino";
 
 import { ANALYSIS_QUEUE_NAME, ANALYSIS_RESULT_CACHE_TTL_SECONDS } from "../../config/constants";
 import { env } from "../../config/env";
 import { anthropic } from "../../lib/anthropic";
 import { createRedisConnection, redis } from "../../lib/redis";
-import { getLLMBackoffMs } from "../../lib/retry-strategies";
 import { buildAdversarialPrompt } from "./prompts";
 import {
-  AnalysisJobData,
-  getAnalysisEventChannel,
+  getAnalysisResultCacheKey,
   publishAnalysisEvent,
-  registerAnalysisJobHandler,
-  getAnalysisResultCacheKey
+  registerAnalysisJobHandler
 } from "./analysis.queue";
 import { serializeAnalysis } from "./analysis.service";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Timeout configuration (in ms)
-const TIMEOUTS = {
-  LLM_CALL: 45000, // 45s for LLM API call
-  JOB_TOTAL: 120000, // 2 min total job timeout
-  GRACEFUL_SHUTDOWN: 10000 // 10s for graceful worker shutdown
-};
-
-/**
- * Wraps async function with timeout
- * Throws AbortError if timeout exceeded
- */
-const withTimeout = async <T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  label: string
-): Promise<T> => {
-  let timeoutHandle: NodeJS.Timeout;
-  
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timeoutHandle = setTimeout(() => {
-      const error = new Error(`${label} exceeded timeout of ${timeoutMs}ms`);
-      error.name = "TimeoutError";
-      reject(error);
-    }, timeoutMs);
+const buildDemoAnalysisResult = (input: string) =>
+  AnalysisResultSchema.parse({
+    summary: `The plan has promise, but it relies on assumptions about demand, trust, and execution that still need proof. A local fallback analysis generated this report from your submitted text: "${input.slice(0, 140)}${input.length > 140 ? "..." : ""}"`,
+    counterarguments: [
+      {
+        title: "Demand is asserted more than demonstrated",
+        argument: "The proposal sounds confident about the problem, but it does not yet show repeated pain, urgency, or budget ownership strongly enough to justify the confidence level.",
+        refutationEvidence: ["Customer calls with clear buying intent", "Evidence of repeated usage", "Replacement of an existing workflow or spend"]
+      },
+      {
+        title: "Distribution may be the actual bottleneck",
+        argument: "The current reasoning puts more emphasis on product quality than on how users will actually discover, trust, and adopt the product at scale.",
+        refutationEvidence: ["Repeatable acquisition channel", "CAC payback clarity", "Non-founder-led pipeline"]
+      },
+      {
+        title: "Execution dependencies are compressed",
+        argument: "Product, trust, monetization, and retention are treated as if they will progress together, but each one can invalidate the others if it slips.",
+        refutationEvidence: ["Milestones with owners", "Dependencies mapped explicitly", "Operating buffer for delays"]
+      }
+    ],
+    assumptions: [
+      {
+        assumption: "Users will trust the system quickly",
+        whyItMightBeWrong: "High-stakes users usually need proof, repeatability, and explainability before relying on a contrarian tool.",
+        severity: "High",
+        validationEvidence: ["Second-session usage", "Trust rating after first report"]
+      },
+      {
+        assumption: "The use case is frequent enough for recurring revenue",
+        whyItMightBeWrong: "Decision-support tools can be valuable but episodic, which makes subscription fit weaker than expected.",
+        severity: "Critical",
+        validationEvidence: ["Weekly active usage", "Cohort frequency data"]
+      },
+      {
+        assumption: "The positioning is clearly differentiated",
+        whyItMightBeWrong: "If the output feels generic, buyers will compare it to broader AI tools rather than a must-have workflow.",
+        severity: "High",
+        validationEvidence: ["Preference tests", "Win-loss feedback"]
+      },
+      {
+        assumption: "Users will share sensitive material",
+        whyItMightBeWrong: "Security and confidentiality concerns can block adoption even when the product value is clear.",
+        severity: "Critical",
+        validationEvidence: ["Security review outcomes", "Submission rate for sensitive use cases"]
+      },
+      {
+        assumption: "First-run delight will translate into retention",
+        whyItMightBeWrong: "Novelty can create a strong first impression without producing a recurring habit.",
+        severity: "Medium",
+        validationEvidence: ["30-day retention", "Repeat activation rates"]
+      }
+    ],
+    expertPersonas: [
+      {
+        name: "Avery Chen",
+        title: "Enterprise Product Leader",
+        background: "Builds trust-sensitive workflow software for regulated teams.",
+        coreObjection: "The core insight is appealing, but the trust layer still needs more operational proof.",
+        unansweredQuestion: "How will you show that the critique is reliably useful instead of just compelling-sounding?",
+        seenFailInSimilarSituations: "Has seen promising AI copilots stall when trust and explainability lagged the product story."
+      },
+      {
+        name: "Samir Gupta",
+        title: "B2B Growth Advisor",
+        background: "Helps early software products build repeatable acquisition before scale.",
+        coreObjection: "The product thesis feels sharper than the go-to-market thesis.",
+        unansweredQuestion: "Which channel acquires users predictably without depending on founder energy?",
+        seenFailInSimilarSituations: "Has seen good products plateau because distribution never became systematic."
+      },
+      {
+        name: "Nora Alvarez",
+        title: "AI Evaluation Lead",
+        background: "Designs evaluation systems for production AI products.",
+        coreObjection: "The system still needs a clearer way to measure whether surfaced blind spots are actually predictive.",
+        unansweredQuestion: "What metric separates a useful critique from a persuasive false positive?",
+        seenFailInSimilarSituations: "Has seen critique tools lose trust when tone improved faster than signal quality."
+      }
+    ],
+    blindSpotReport: [
+      {
+        title: "Confidence is ahead of validation",
+        severityScore: 9,
+        severity: "Critical",
+        explanation: "The idea is directionally plausible, but the strongest claims still need direct evidence."
+      },
+      {
+        title: "Distribution is under-modeled",
+        severityScore: 8,
+        severity: "Critical",
+        explanation: "Acquisition assumptions are still too vague relative to the certainty of the plan."
+      },
+      {
+        title: "Trust friction could slow adoption",
+        severityScore: 6,
+        severity: "High",
+        explanation: "The product depends on users sharing valuable inputs they may hesitate to expose."
+      },
+      {
+        title: "Success metrics need sharper definition",
+        severityScore: 4,
+        severity: "Medium",
+        explanation: "The system should prove that its critiques improve outcomes rather than only sounding incisive."
+      }
+    ],
+    confidenceAudit: {
+      defensiblePercentage: 46,
+      wishfulThinkingPercentage: 54,
+      defensibleJustification: "There is a credible underlying problem, but several critical assumptions still need validation.",
+      wishfulThinkingExamples: ["Assuming retention before measuring repeat behavior", "Assuming trust without an explicit trust layer"],
+      verdict: "Proceed with caution"
+    }
   });
 
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } finally {
-    clearTimeout(timeoutHandle);
-  }
-};
-
-/**
- * Determines if error is retryable
- */
-const isRetryableError = (error: Error): boolean => {
-  const retryablePatterns = [
-    "rate",
-    "429",
-    "quota",
-    "timeout",
-    "503",
-    "502",
-    "connection",
-    "ECONNRESET",
-    "ETIMEDOUT"
-  ];
-  
-  const errorMsg = error?.message?.toLowerCase() || "";
-  return retryablePatterns.some(pattern => errorMsg.includes(pattern));
-};
-
-/**
- * Custom retry handler with intelligent backoff
- */
-const handleJobRetry = async (
-  job: Job<AnalysisJobData>,
-  error: Error,
-  logger: any
-): Promise<number> => {
-  const attempt = (job.attemptsMade || 0) + 1;
-  const isRetryable = isRetryableError(error);
-  
-  if (!isRetryable || attempt >= 3) {
-    logger.error(
-      {
-        jobId: job.id,
-        error: error.message,
-        attempt,
-        retryable: isRetryable
-      },
-      "Job failed and will not retry"
-    );
-    throw error;
-  }
-  
-  const backoffMs = getLLMBackoffMs(attempt, error);
-  logger.warn(
-    {
-      jobId: job.id,
-      attempt,
-      backoffMs,
-      error: error.message
-    },
-    "Job will retry with backoff"
-  );
-  
-  // Return delay in ms for BullMQ
-  return backoffMs;
-};
-
-/**
- * Main job processor
- */
-export const processAnalysisJob = async (
-  fastify: any,
-  job: Job<AnalysisJobData>,
-  logger: any
-): Promise<void> => {
-  const { analysisId, userId, userPlan } = job.data;
+export const processAnalysisJob = async (fastify: any, analysisId: string) => {
   const startedAt = Date.now();
-  
-  logger.info(
-    { analysisId, userId, userPlan, attempt: job.attemptsMade + 1 },
-    "Processing analysis job"
-  );
+  const useDemoAnalysis = env.DEMO_MODE || !env.ANTHROPIC_ENABLED;
 
   await fastify.prisma.analysis.update({
     where: { id: analysisId },
@@ -136,64 +141,49 @@ export const processAnalysisJob = async (
     event: "processing",
     analysisId,
     status: "PROCESSING",
-    message: env.DEMO_MODE ? "Running local demo analysis" : "Adversarial analysis in progress",
-    timestamp: new Date().toISOString()
+    message: useDemoAnalysis ? "Running local fallback analysis" : "Adversarial analysis in progress"
+  });
+
+  const analysis = await fastify.prisma.analysis.findUniqueOrThrow({
+    where: { id: analysisId }
   });
 
   try {
-    const analysis = await withTimeout(
-      fastify.prisma.analysis.findUniqueOrThrow({ where: { id: analysisId } }),
-      5000,
-      "Database fetch"
-    );
-
-    if (env.DEMO_MODE) {
+    if (useDemoAnalysis) {
       await wait(900);
-      const result = buildDemoAnalysisResult(analysis.input);
-      const serialized = serializeAnalysis({
-        ...analysis,
-        status: "COMPLETE",
-        summary: result.summary,
-        counterarguments: result.counterarguments,
-        assumptions: result.assumptions,
-        expertPersonas: result.expertPersonas,
-        blindSpotReport: result.blindSpotReport,
-        confidenceAudit: result.confidenceAudit
-      });
-      
-      await updateAnalysisSuccess(fastify, analysisId, userId, serialized, Date.now() - startedAt, logger);
-      return;
     }
 
-    // Call Claude with timeout protection
-    const llmResult = await withTimeout(
-      (async () => {
-        const response = await anthropic.messages.create({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 3500,
-          temperature: 0.4,
-          timeout: TIMEOUTS.LLM_CALL, // Built-in timeout
-          messages: [
-            {
-              role: "user",
-              content: buildAdversarialPrompt(analysis.input)
-            }
-          ]
-        });
+    const result = useDemoAnalysis
+      ? {
+          parsed: buildDemoAnalysisResult(analysis.input),
+          usage: {
+            input_tokens: Math.ceil(analysis.input.length / 4),
+            output_tokens: 1200
+          }
+        }
+      : await (async () => {
+          const response = await anthropic.messages.create({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 3500,
+            temperature: 0.4,
+            messages: [
+              {
+                role: "user",
+                content: buildAdversarialPrompt(analysis.input)
+              }
+            ]
+          });
 
-        const text = response.content
-          .filter((block: any) => block.type === "text")
-          .map((block: any) => block.text)
-          .join("");
+          const text = response.content
+            .filter((block) => block.type === "text")
+            .map((block) => block.text)
+            .join("");
 
-        return {
-          parsed: AnalysisResultSchema.parse(JSON.parse(text)),
-          usage: response.usage
-        };
-      })(),
-      TIMEOUTS.LLM_CALL,
-      "LLM API call"
-    );
+          return {
+            parsed: AnalysisResultSchema.parse(JSON.parse(text)),
+            usage: response.usage
+          };
+        })();
 
     const durationMs = Date.now() - startedAt;
 
@@ -201,24 +191,27 @@ export const processAnalysisJob = async (
       where: { id: analysisId },
       data: {
         status: "COMPLETE",
-        summary: llmResult.parsed.summary,
-        counterarguments: llmResult.parsed.counterarguments,
-        assumptions: llmResult.parsed.assumptions,
-        expertPersonas: llmResult.parsed.expertPersonas,
-        blindSpotReport: llmResult.parsed.blindSpotReport,
-        confidenceAudit: llmResult.parsed.confidenceAudit,
-        inputTokens: llmResult.usage.input_tokens,
-        outputTokens: llmResult.usage.output_tokens,
+        summary: result.parsed.summary,
+        counterarguments: result.parsed.counterarguments,
+        assumptions: result.parsed.assumptions,
+        expertPersonas: result.parsed.expertPersonas,
+        blindSpotReport: result.parsed.blindSpotReport,
+        confidenceAudit: result.parsed.confidenceAudit,
+        inputTokens: result.usage.input_tokens,
+        outputTokens: result.usage.output_tokens,
         durationMs
       }
     });
 
     const completedCount = await fastify.prisma.analysis.count({
-      where: { userId, status: "COMPLETE" }
+      where: {
+        userId: analysis.userId,
+        status: "COMPLETE"
+      }
     });
 
     await fastify.prisma.user.update({
-      where: { id: userId },
+      where: { id: analysis.userId },
       data: { analysisCount: completedCount }
     });
 
@@ -235,60 +228,30 @@ export const processAnalysisJob = async (
       analysisId,
       status: "COMPLETE",
       message: "Analysis complete",
-      result: serialized.result,
-      timestamp: new Date().toISOString(),
-      durationMs
+      result: serialized.result
     });
 
-    logger.info(
-      { analysisId, durationMs, userPlan },
-      "Analysis completed successfully"
-    );
+    return result.parsed;
   } catch (error) {
-    const durationMs = Date.now() - startedAt;
-    const err = error as Error;
-
-    logger.error(
-      {
-        analysisId,
-        error: err.message,
-        stack: err.stack,
-        durationMs,
-        attempt: job.attemptsMade + 1
-      },
-      "Analysis job failed"
-    );
-
-    // Try to update status to failed
-    try {
-      await fastify.prisma.analysis.update({
-        where: { id: analysisId },
-        data: { status: "FAILED", durationMs }
-      });
-    } catch (updateError) {
-      logger.error(
-        { analysisId, error: updateError },
-        "Failed to update analysis status"
-      );
-    }
+    await fastify.prisma.analysis.update({
+      where: { id: analysisId },
+      data: {
+        status: "FAILED",
+        durationMs: Date.now() - startedAt
+      }
+    });
 
     await publishAnalysisEvent(analysisId, {
       event: "failed",
       analysisId,
       status: "FAILED",
-      message: `Analysis failed: ${err.message}`,
-      timestamp: new Date().toISOString(),
-      durationMs
+      message: "Analysis failed"
     });
 
-    // Intelligent retry
-    throw await handleJobRetry(job, err, logger);
+    throw error;
   }
 };
 
-/**
- * Start the worker with proper error handling
- */
 export const startAnalysisWorker = (fastify: any) => {
   if (env.ANALYSIS_EXECUTION_MODE === "inline") {
     return null;
@@ -296,83 +259,24 @@ export const startAnalysisWorker = (fastify: any) => {
 
   if (env.DEMO_MODE) {
     registerAnalysisJobHandler(async (analysisId) => {
-      const logger = pino();
-      const job = {
-        data: { analysisId, userId: "demo", userPlan: "FREE" },
-        attemptsMade: 0
-      } as any;
-      await processAnalysisJob(fastify, job, logger);
+      await processAnalysisJob(fastify, analysisId);
     });
+
     return null;
   }
 
-  const logger = fastify.log;
-  const worker = new Worker<AnalysisJobData>(
+  const worker = new Worker(
     ANALYSIS_QUEUE_NAME,
-    async (job) => {
-      // Total job timeout
-      return withTimeout(
-        processAnalysisJob(fastify, job, logger),
-        TIMEOUTS.JOB_TOTAL,
-        "Total job processing"
-      );
-    },
+    async (job) => processAnalysisJob(fastify, job.data.analysisId as string),
     {
       connection: createRedisConnection() as any,
-      concurrency: 4,
-      settings: {
-        lockDuration: 30000, // 30s lock
-        lockRenewTime: 15000, // Renew every 15s
-        maxStalledCount: 2 // Remove after 2 stalls
-      }
+      concurrency: 4
     }
   );
 
-  // Event listeners for observability
-  worker.on("completed", (job) => {
-    logger.debug({ jobId: job.id }, "Job completed");
-  });
-
-  worker.on("failed", (job, error) => {
-    logger.error({ jobId: job?.id, error: error.message }, "Job failed");
-  });
-
-  worker.on("stalled", (jobId) => {
-    logger.warn({ jobId }, "Job stalled (timeout?)");
-  });
-
-  worker.on("error", (error) => {
-    logger.error({ error: error.message }, "Worker error");
-  });
-
   fastify.addHook("onClose", async () => {
-    logger.info("Gracefully closing worker...");
     await worker.close();
   });
 
   return worker;
-};
-
-// Demo helper
-const buildDemoAnalysisResult = (input: string) => 
-  AnalysisResultSchema.parse({
-    // ... existing demo data
-  });
-
-const updateAnalysisSuccess = async (
-  fastify: any,
-  analysisId: string,
-  userId: string,
-  serialized: any,
-  durationMs: number,
-  logger: any
-) => {
-  await redis.set(
-    getAnalysisResultCacheKey(analysisId),
-    JSON.stringify(serialized),
-    "EX",
-    ANALYSIS_RESULT_CACHE_TTL_SECONDS
-  );
-  
-  logger.info({ analysisId, durationMs }, "Analysis succeeded");
 };

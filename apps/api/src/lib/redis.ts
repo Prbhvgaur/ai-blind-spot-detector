@@ -14,15 +14,19 @@ const createRedisClient = () =>
     enableReadyCheck: true
   });
 
-const liveRedis = env.DEMO_MODE ? undefined : global.__blindspotRedis__ ?? createRedisClient();
+const useInMemoryRedis = env.DEMO_MODE || env.ANALYSIS_EXECUTION_MODE === "inline";
 
-export const redis: Redis | DemoRedisLike = env.DEMO_MODE
+const liveRedis = useInMemoryRedis ? undefined : global.__blindspotRedis__ ?? createRedisClient();
+
+export const redis: Redis | DemoRedisLike = useInMemoryRedis
   ? demoRedis
   : liveRedis!;
 
-if (env.NODE_ENV !== "production" && !env.DEMO_MODE) {
+if (env.NODE_ENV !== "production" && !useInMemoryRedis) {
   global.__blindspotRedis__ = liveRedis!;
 }
 
 export const createRedisConnection = () =>
-  (env.DEMO_MODE ? demoRedis.createSubscriber() : createRedisClient()) as Redis | DemoRedisSubscriberLike;
+  (useInMemoryRedis ? demoRedis.createSubscriber() : createRedisClient()) as
+    | Redis
+    | DemoRedisSubscriberLike;

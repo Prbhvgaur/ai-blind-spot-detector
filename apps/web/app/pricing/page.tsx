@@ -1,16 +1,26 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/lib/api";
 
-export default function PricingPage() {
+function PricingContent() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const billingState = searchParams.get("billing");
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
+      {billingState === "cancelled" ? (
+        <div className="border border-border bg-zinc-950/70 px-4 py-4 font-mono text-sm text-zinc-200">
+          Checkout was cancelled. You can restart whenever you are ready.
+        </div>
+      ) : null}
+
       <div className="space-y-3">
         <div className="font-display text-5xl text-white">Pricing</div>
         <p className="max-w-2xl font-mono text-sm text-zinc-400">
@@ -62,3 +72,10 @@ export default function PricingPage() {
   );
 }
 
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-5xl font-mono text-sm text-zinc-400">Loading pricing...</div>}>
+      <PricingContent />
+    </Suspense>
+  );
+}
